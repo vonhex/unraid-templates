@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>A-Eye</Name>
+  <Repository>ghcr.io/vonhex/a-eye:latest</Repository>
+  <Registry>https://github.com/vonhex/a-eye/pkgs/container/a-eye</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/vonhex/a-eye/issues</Support>
+  <Project>https://github.com/vonhex/a-eye</Project>
+  <Overview>A-Eye is a self-hosted AI photo intelligence tool. Uses a local Ollama vision model to understand, describe, tag, and rename your photos — no cloud required, everything runs on your own hardware. Supports automatic renaming, manual review mode, XMP sidecar writing (compatible with Immich, Lightroom, and digiKam), natural language photo search, quality detection for blurry or accidental shots, and a temporary workspace for processing photos from other devices. Works as a full photo renamer, a metadata enrichment tool, or a non-destructive read-only catalogue. Powered by Ollama for local AI inference.</Overview>
+  <Category>AI: Productivity: MediaApp:Photos</Category>
+  <WebUI>http://[IP]:[PORT:8000]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/A-Eye.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/vonhex/a-eye/main/frontend/static/a-eye-logo.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>Requires a running Ollama instance with a vision model pulled, e.g. minicpm-v. Run: docker exec ollama ollama pull minicpm-v</Requires>
+
+  <!-- ── Ports ── -->
+  <Config Name="Web UI Port" Target="8000" Default="8000" Mode="tcp"
+          Description="Port for the A-Eye web interface."
+          Type="Port" Display="always" Required="true" Mask="false">8000</Config>
+
+  <!-- ── Data paths ── -->
+  <Config Name="Photos Directory" Target="/photos" Default="/mnt/user/Photos/"
+          Description="Path to your photos directory. A-Eye will scan and process images from here."
+          Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/Photos/</Config>
+
+  <Config Name="App Data" Target="/app/data" Default="/mnt/user/appdata/a-eye/"
+          Description="Persistent storage for the database, config, and thumbnail cache."
+          Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/a-eye/</Config>
+
+  <!-- ── Ollama ── -->
+  <Config Name="Ollama Host" Target="OLLAMA_HOST" Default="http://192.168.1.x:11434"
+          Description="URL of your running Ollama instance. Use your server's LAN IP — not localhost (that resolves inside the container)."
+          Type="Variable" Display="always" Required="true" Mask="false">http://192.168.1.x:11434</Config>
+
+  <!-- ── Permissions ── -->
+  <Config Name="PUID" Target="PUID" Default="99"
+          Description="User ID that owns your photos directory. Run 'id -u' on your Unraid terminal to find yours. Default 99 = nobody."
+          Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+
+  <Config Name="PGID" Target="PGID" Default="100"
+          Description="Group ID that owns your photos directory. Run 'id -g' on your Unraid terminal to find yours. Default 100 = users."
+          Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
+</Container>
