@@ -8,7 +8,7 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/vonhex/Eyeris/issues</Support>
   <Project>https://github.com/vonhex/Eyeris</Project>
-  <Overview>Self-hosted photo manager for NAS and local libraries. Eyeris scans your photos, generates thumbnails, detects NSFW content, and gives you a fast searchable gallery — all on your own hardware. AI-powered image descriptions and tagging are offloaded to a connected A-Eye instance; Eyeris imports the results automatically. No cloud, no subscriptions, no local LLM required. Features include: fast GPU-accelerated NSFW detection and tag classification, A-Eye integration for AI descriptions and tags, EXIF and GPS metadata, duplicate and blurry photo detection, album organisation, SearXNG web image search, and a real-time dashboard.</Overview>
+  <Overview>Self-hosted photo manager for NAS and local libraries. Eyeris scans your photos, generates thumbnails, and gives you a fast searchable gallery — all on your own hardware. AI-powered image descriptions and tagging are offloaded to a connected A-Eye instance; Eyeris imports the results automatically. No cloud, no subscriptions, no local LLM required. Features include: A-Eye integration for AI descriptions and tags, EXIF and GPS metadata, duplicate and blurry photo detection, album organisation, SearXNG web image search, and a real-time dashboard.</Overview>
   <Category>AI: Productivity: MediaApp:Photos</Category>
   <WebUI>http://[IP]:[PORT:8000]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/Eyeris.xml</TemplateURL>
