@@ -8,7 +8,7 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/vonhex/a-eye/issues</Support>
   <Project>https://github.com/vonhex/a-eye</Project>
-  <Overview>A-Eye is a self-hosted AI photo intelligence tool. Uses a local Ollama vision model to understand, describe, tag, and rename your photos — no cloud required, everything runs on your own hardware. Supports automatic renaming, manual review mode, XMP sidecar writing (compatible with Immich, Lightroom, and digiKam), natural language photo search, quality detection for blurry or accidental shots, and a temporary workspace for processing photos from other devices. Works as a full photo renamer, a metadata enrichment tool, or a non-destructive read-only catalogue. Powered by Ollama for local AI inference.</Overview>
+  <Overview>A-Eye is a self-hosted AI photo intelligence tool. This is a fork of the original A-Eye by SpaceinvaderOne (https://github.com/SpaceinvaderOne/a-eye), created to fix bugs present in the original. Uses a local Ollama vision model to understand, describe, tag, and rename your photos — no cloud required, everything runs on your own hardware. Supports automatic renaming, manual review mode, XMP sidecar writing (compatible with Immich, Lightroom, and digiKam), natural language photo search, quality detection for blurry or accidental shots, and a temporary workspace for processing photos from other devices. Works as a full photo renamer, a metadata enrichment tool, or a non-destructive read-only catalogue. Powered by Ollama for local AI inference.</Overview>
   <Category>AI: Productivity: MediaApp:Photos</Category>
   <WebUI>http://[IP]:[PORT:8000]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/A-Eye.xml</TemplateURL>
