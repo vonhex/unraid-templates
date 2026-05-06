@@ -8,7 +8,7 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/vonhex/Eyeris/issues</Support>
   <Project>https://github.com/vonhex/Eyeris</Project>
-  <Overview>Self-hosted AI photo manager. Eyeris scans your NAS or local photo library, generates thumbnails, runs AI analysis to describe and tag images, clusters faces into people, and gives you a fast searchable gallery — all on your own hardware. No cloud, no subscriptions. Features include: AI-powered photo search, face recognition and clustering, NSFW detection, EXIF and GPS metadata, album organisation, SearXNG web image search integration, and a real-time dashboard. Powered by a local llama.cpp vision model (Gemma 4 recommended).</Overview>
+  <Overview>Self-hosted photo manager for NAS and local libraries. Eyeris scans your photos, generates thumbnails, detects NSFW content, and gives you a fast searchable gallery — all on your own hardware. AI-powered image descriptions and tagging are offloaded to a connected A-Eye instance; Eyeris imports the results automatically. No cloud, no subscriptions, no local LLM required. Features include: fast GPU-accelerated NSFW detection and tag classification, A-Eye integration for AI descriptions and tags, EXIF and GPS metadata, duplicate and blurry photo detection, album organisation, SearXNG web image search, and a real-time dashboard.</Overview>
   <Category>AI: Productivity: MediaApp:Photos</Category>
   <WebUI>http://[IP]:[PORT:8000]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/Eyeris.xml</TemplateURL>
@@ -18,7 +18,7 @@
   <CPUset/>
   <DonateText/>
   <DonateLink/>
-  <Requires>Requires a running llama.cpp server with a vision model loaded (e.g. Gemma 4). Optional: MariaDB for large libraries (SQLite used by default).</Requires>
+  <Requires>Optional but recommended: a running A-Eye instance for AI image descriptions and tagging. Optional: MariaDB for large libraries (SQLite used by default).</Requires>
 
   <!-- ── Ports ── -->
   <Config Name="Web UI Port" Target="8000" Default="8000" Mode="tcp"
@@ -31,7 +31,7 @@
           Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/Pictures/</Config>
 
   <Config Name="Thumbnails" Target="/data/thumbnails" Default="/mnt/user/appdata/eyeris/thumbnails/"
-          Description="Where Eyeris stores generated thumbnails and AI model cache."
+          Description="Where Eyeris stores generated thumbnails and face crop cache."
           Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/eyeris/thumbnails/</Config>
 
   <Config Name="Database" Target="/data/db" Default="/mnt/user/appdata/eyeris/db/"
@@ -64,23 +64,44 @@
           Description="Comma-separated share names to scan, e.g. photos,media,camera-uploads"
           Type="Variable" Display="always" Required="false" Mask="false"></Config>
 
-  <!-- ── AI ── -->
-  <Config Name="LLM Server URL" Target="LLAMA_CPP_URL" Default=""
-          Description="URL of your running llama.cpp server, e.g. http://192.168.1.100:8080. Required for AI image descriptions and tagging."
+  <!-- ── A-Eye (AI) ── -->
+  <Config Name="A-Eye URL" Target="AEYE_URL" Default=""
+          Description="URL of your A-Eye instance, e.g. http://192.168.1.100:7171. Connect A-Eye to enable AI image descriptions and automatic tagging."
           Type="Variable" Display="always" Required="false" Mask="false"></Config>
 
+  <Config Name="A-Eye Username" Target="AEYE_USER" Default=""
+          Description="Username for HTTP Basic Auth on your A-Eye instance. Leave empty if A-Eye is unauthenticated."
+          Type="Variable" Display="always" Required="false" Mask="false"></Config>
+
+  <Config Name="A-Eye Password" Target="AEYE_PASS" Default=""
+          Description="Password for HTTP Basic Auth on your A-Eye instance."
+          Type="Variable" Display="always" Required="false" Mask="true"></Config>
+
+  <!-- ── SearXNG ── -->
   <Config Name="SearXNG URL" Target="SEARXNG_URL" Default=""
-          Description="URL of a SearXNG instance for web image search integration (optional)."
+          Description="URL of a SearXNG instance for the web image search feature (optional)."
           Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
 
   <!-- ── Scanner ── -->
   <Config Name="Scan Workers" Target="SCAN_CONCURRENCY" Default="2"
-          Description="Number of parallel AI analysis workers. Raise to 3-4 on fast CPUs; lower if your system struggles."
+          Description="Number of parallel scan workers. Raise to 3-4 on fast systems; lower if your system struggles."
           Type="Variable" Display="always" Required="false" Mask="false">2</Config>
 
   <Config Name="Scan Interval (minutes)" Target="SCAN_INTERVAL_MINUTES" Default="60"
           Description="How often Eyeris rescans for new photos."
           Type="Variable" Display="advanced" Required="false" Mask="false">60</Config>
+
+  <Config Name="Scan Schedule Enabled" Target="SCAN_SCHEDULE_ENABLED" Default="false"
+          Description="Set to true to restrict scanning to a time window (e.g. overnight only)."
+          Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+
+  <Config Name="Scan Schedule Start" Target="SCAN_SCHEDULE_START" Default="22:00"
+          Description="Start of the allowed scan window (24-hour HH:MM). Only used when SCAN_SCHEDULE_ENABLED=true."
+          Type="Variable" Display="advanced" Required="false" Mask="false">22:00</Config>
+
+  <Config Name="Scan Schedule End" Target="SCAN_SCHEDULE_END" Default="06:00"
+          Description="End of the allowed scan window (24-hour HH:MM). An end time before the start time crosses midnight."
+          Type="Variable" Display="advanced" Required="false" Mask="false">06:00</Config>
 
   <!-- ── Database (optional MariaDB — leave blank for SQLite) ── -->
   <Config Name="MariaDB Host" Target="DB_HOST" Default=""
