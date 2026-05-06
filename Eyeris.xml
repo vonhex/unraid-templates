@@ -13,7 +13,7 @@
   <WebUI>http://[IP]:[PORT:8000]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/Eyeris.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/vonhex/Eyeris/main/eyeris-logo-icon2.png</Icon>
-  <ExtraParams>--group-add render --group-add video -v /sys:/sys:ro</ExtraParams>
+  <ExtraParams/>
   <PostArgs/>
   <CPUset/>
   <DonateText/>
@@ -41,11 +41,6 @@
   <Config Name="Config file (.env)" Target="/app/.env" Default="/mnt/user/appdata/eyeris/eyeris.env"
           Description="Persistent config file — Eyeris reads and writes settings here. Create an empty file at this path before first run."
           Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/eyeris/eyeris.env</Config>
-
-  <!-- ── GPU ── -->
-  <Config Name="Intel / AMD GPU device" Target="/dev/dri" Default="/dev/dri"
-          Description="Pass through Intel iGPU/Arc or AMD GPU for hardware-accelerated thumbnail generation. Remove this line if using NVIDIA only."
-          Type="Device" Display="advanced" Required="false" Mask="false">/dev/dri</Config>
 
   <!-- ── NAS (SMB) ── -->
   <Config Name="NAS Host" Target="SMB_HOST" Default=""
@@ -124,8 +119,4 @@
           Description="MariaDB database name."
           Type="Variable" Display="advanced" Required="false" Mask="false">image_catalog</Config>
 
-  <!-- ── NVIDIA GPU (handled by Unraid's GPU plugin) ── -->
-  <GPU support="yes">
-    <NVIDIA>true</NVIDIA>
-  </GPU>
 </Container>
