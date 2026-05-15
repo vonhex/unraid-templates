@@ -8,11 +8,11 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/vonhex/delamain/issues</Support>
   <Project>https://github.com/vonhex/delamain</Project>
-  <Overview>Delamain is a self-hosted AI vehicle companion modeled on Delamain from Cyberpunk 2077. It integrates with sunnypilot on Comma hardware (Comma 4 / Comma 3X) to deliver real-time voice commentary, driving event alerts, navigation, web search, and a full telemetry dashboard — all through a cyber-themed web interface and Android Automotive app. Voice is powered by F5-TTS with a cloned voice. Delamain speaks when you brake hard, when the car ahead is too close, when you are speeding — and unprompted after 30 minutes of silence on a long drive. Requires a running llama.cpp server or any OpenAI-compatible LLM endpoint. F5-TTS model weights and a voice reference audio file must be supplied by the user (see GitHub for details).</Overview>
+  <Overview>Delamain is a self-hosted AI vehicle companion modeled on Delamain from Cyberpunk 2077. It integrates with sunnypilot on Comma hardware (Comma 4 / Comma 3X) to deliver real-time voice commentary, driving event alerts, navigation, web search, and a full telemetry dashboard — all through a cyber-themed web interface. Voice is powered by F5-TTS with a cloned voice. Delamain speaks when you brake hard, when the car ahead is too close, when you are speeding — and unprompted after 30 minutes of silence on a long drive. Requires a running llama.cpp server or any OpenAI-compatible LLM endpoint. F5-TTS model weights and a voice reference audio file must be supplied by the user (see GitHub for details).</Overview>
   <Category>AI: Productivity: Tools:</Category>
   <WebUI>http://[IP]:[PORT:5173]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/Delamain.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/vonhex/delamain/main/android-app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png</Icon>
+  <Icon>https://raw.githubusercontent.com/vonhex/delamain/main/frontend/public/delamain.png</Icon>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
