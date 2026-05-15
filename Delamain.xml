@@ -12,7 +12,7 @@
   <Category>AI: Productivity: Tools:</Category>
   <WebUI>http://[IP]:[PORT:5173]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/Delamain.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/vonhex/delamain/main/frontend/public/delamain.png</Icon>
+  <Icon>https://raw.githubusercontent.com/vonhex/delamain/main/logo.png</Icon>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
