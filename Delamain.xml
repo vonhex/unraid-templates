@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Delamain</Name>
+  <Repository>ghcr.io/vonhex/delamain:latest</Repository>
+  <Registry>https://github.com/vonhex/delamain/pkgs/container/delamain</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/vonhex/delamain/issues</Support>
+  <Project>https://github.com/vonhex/delamain</Project>
+  <Overview>Delamain is a self-hosted AI vehicle companion modeled on Delamain from Cyberpunk 2077. It integrates with sunnypilot on Comma hardware (Comma 4 / Comma 3X) to deliver real-time voice commentary, driving event alerts, navigation, web search, and a full telemetry dashboard — all through a cyber-themed web interface and Android Automotive app. Voice is powered by F5-TTS with a cloned voice. Delamain speaks when you brake hard, when the car ahead is too close, when you are speeding — and unprompted after 30 minutes of silence on a long drive. Requires a running llama.cpp server or any OpenAI-compatible LLM endpoint. F5-TTS model weights and a voice reference audio file must be supplied by the user (see GitHub for details).</Overview>
+  <Category>AI: Productivity: Tools:</Category>
+  <WebUI>http://[IP]:[PORT:5173]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/Delamain.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/vonhex/delamain/main/android-app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>Requires a running llama.cpp server or OpenAI-compatible LLM endpoint. F5-TTS model weights must be downloaded separately (see GitHub README). An NVIDIA GPU is strongly recommended for real-time TTS; CPU-only is supported but slower on uncached phrases.</Requires>
+
+  <!-- ── Ports ── -->
+  <Config Name="Backend API Port" Target="8888" Default="8888" Mode="tcp"
+          Description="Delamain backend API and WebSocket port."
+          Type="Port" Display="always" Required="true" Mask="false">8888</Config>
+
+  <!-- ── Volumes ── -->
+  <Config Name="App Data" Target="/app/data" Default="/mnt/user/appdata/delamain/"
+          Description="Persistent storage for the SQLite database, audio output cache, and reference audio file. Place your delamain_ref_10s.wav here."
+          Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/delamain/</Config>
+
+  <Config Name="F5-TTS Model Weights" Target="/app/checkpoints" Default="/mnt/user/appdata/delamain/checkpoints/"
+          Description="Path to F5-TTS model weights directory. Must contain F5TTS_Base/model_1200000.pt and F5TTS_Base/vocab.txt. Download with: huggingface-cli download SWivid/F5-TTS F5TTS_Base/model_1200000.pt F5TTS_Base/vocab.txt --local-dir /path/to/checkpoints"
+          Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/delamain/checkpoints/</Config>
+
+  <!-- ── LLM ── -->
+  <Config Name="LLM URL" Target="LLM_URL" Default="http://192.168.1.x:8080/v1/chat/completions"
+          Description="URL of your llama.cpp or OpenAI-compatible LLM server. Use your server's LAN IP — not localhost (that resolves inside the container)."
+          Type="Variable" Display="always" Required="true" Mask="false">http://192.168.1.x:8080/v1/chat/completions</Config>
+
+  <!-- ── Web Search (optional) ── -->
+  <Config Name="SearXNG URL" Target="SEARXNG_URL" Default=""
+          Description="Optional: URL of a SearXNG instance for live web search (weather, traffic, news). Leave blank to disable. Example: http://192.168.1.x:8887/search"
+          Type="Variable" Display="always" Required="false" Mask="false"></Config>
+
+  <!-- ── CORS ── -->
+  <Config Name="Allowed Origins" Target="ALLOWED_ORIGINS" Default="http://[IP]:5173"
+          Description="Comma-separated list of origins allowed to connect to the backend. Include your domain if accessing over the internet. Example: https://delamain.example.com,http://192.168.1.x:5173"
+          Type="Variable" Display="always" Required="true" Mask="false">http://[IP]:5173</Config>
+
+  <!-- ── GPU (NVIDIA) ── -->
+  <Config Name="NVIDIA GPU (optional)" Target="NVIDIA_VISIBLE_DEVICES" Default=""
+          Description="Set to 'all' to enable NVIDIA GPU passthrough for F5-TTS acceleration. Requires Nvidia-Driver plugin installed in Unraid. Leave blank for CPU-only."
+          Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+</Container>
