@@ -8,9 +8,9 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/vonhex/delamain/issues</Support>
   <Project>https://github.com/vonhex/delamain</Project>
-  <Overview>Delamain is a self-hosted AI vehicle companion modeled on Delamain from Cyberpunk 2077. It integrates with sunnypilot on Comma hardware (Comma 4 / Comma 3X) to deliver real-time voice commentary, driving event alerts, navigation, web search, and a full telemetry dashboard — all through a cyber-themed web interface. Voice is powered by F5-TTS with a cloned voice. Delamain speaks when you brake hard, when the car ahead is too close, when you are speeding — and unprompted after 30 minutes of silence on a long drive. Requires a running llama.cpp server or any OpenAI-compatible LLM endpoint. F5-TTS model weights and a voice reference audio file must be supplied by the user (see GitHub for details).</Overview>
+  <Overview>Delamain is a self-hosted voice companion for the drive, modeled on Delamain from Cyberpunk 2077. Open it in any browser, including the one on your car's Android Auto display, press the mic and talk. It answers in a cloned Delamain voice (F5-TTS), searches the web through SearXNG, reads you spoken news bulletins, keeps notes, reminders and long-term memory in your Obsidian vault, and hands navigation to your phone's map app. A corrupted personality core with stutters and a glitched voice can be switched on in Settings. Works with any OpenAI-compatible LLM that supports tool calling (llama.cpp, vLLM, Halogen). F5-TTS model weights and a voice reference clip must be supplied by the user (see GitHub).</Overview>
   <Category>AI: Productivity: Tools:</Category>
-  <WebUI>http://[IP]:[PORT:5173]/</WebUI>
+  <WebUI>http://[IP]:[PORT:8888]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/Delamain.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/vonhex/delamain/main/logo.png</Icon>
   <ExtraParams/>
@@ -18,36 +18,52 @@
   <CPUset/>
   <DonateText/>
   <DonateLink/>
-  <Requires>Requires a running llama.cpp server or OpenAI-compatible LLM endpoint. F5-TTS model weights must be downloaded separately (see GitHub README). An NVIDIA GPU is strongly recommended for real-time TTS; CPU-only is supported but slower on uncached phrases.</Requires>
+  <Requires>Requires an OpenAI-compatible LLM endpoint with tool calling. F5-TTS model weights must be downloaded separately (see GitHub README), and a 10-second voice reference clip placed in App Data as delamain_ref_10s.wav. After the first start, set a password from the container console: python auth.py set-password YOURPASSWORD. A GPU is recommended for real-time TTS; CPU-only works but is slower on uncached phrases.</Requires>
 
   <!-- ── Ports ── -->
   <Config Name="Backend API Port" Target="8888" Default="8888" Mode="tcp"
-          Description="Delamain backend API and WebSocket port."
+          Description="Web UI, API and WebSocket port."
           Type="Port" Display="always" Required="true" Mask="false">8888</Config>
 
   <!-- ── Volumes ── -->
   <Config Name="App Data" Target="/app/data" Default="/mnt/user/appdata/delamain/"
-          Description="Persistent storage for the SQLite database, audio output cache, and reference audio file. Place your delamain_ref_10s.wav here."
+          Description="Persistent storage for the SQLite database and voice clips. Place your 10-second voice reference clip here as delamain_ref_10s.wav."
           Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/delamain/</Config>
 
   <Config Name="F5-TTS Model Weights" Target="/app/checkpoints" Default="/mnt/user/appdata/delamain/checkpoints/"
           Description="Path to F5-TTS model weights directory. Must contain F5TTS_Base/model_1200000.pt and F5TTS_Base/vocab.txt. Download with: huggingface-cli download SWivid/F5-TTS F5TTS_Base/model_1200000.pt F5TTS_Base/vocab.txt --local-dir /path/to/checkpoints"
           Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/delamain/checkpoints/</Config>
 
+  <Config Name="Obsidian Vault (optional)" Target="/vault" Default=""
+          Description="Optional: your Obsidian vault. Delamain keeps notes, reminders and long-term memory under Delamain/ in it. Leave blank to keep them inside the container."
+          Type="Path" Display="always" Required="false" Mode="rw" Mask="false"></Config>
+
   <!-- ── LLM ── -->
   <Config Name="LLM URL" Target="LLM_URL" Default="http://192.168.1.x:8080/v1/chat/completions"
-          Description="URL of your llama.cpp or OpenAI-compatible LLM server. Use your server's LAN IP — not localhost (that resolves inside the container)."
+          Description="Chat completions URL of your OpenAI-compatible LLM server (llama.cpp, vLLM, Halogen). Use the server's LAN IP — not localhost (that resolves inside the container)."
           Type="Variable" Display="always" Required="true" Mask="false">http://192.168.1.x:8080/v1/chat/completions</Config>
+
+  <Config Name="LLM Model" Target="LLM_MODEL" Default=""
+          Description="Model id your LLM server serves (listed at its /v1/models). llama.cpp ignores it."
+          Type="Variable" Display="always" Required="false" Mask="false"></Config>
+
+  <Config Name="LLM Reasoning Effort" Target="LLM_REASONING_EFFORT" Default=""
+          Description="For reasoning models (Qwen, Halogen): set to none to turn thinking off so replies come quickly. Leave blank for other models."
+          Type="Variable" Display="always" Required="false" Mask="false"></Config>
+
+  <Config Name="Tools" Target="TOOLS_ENABLED" Default="true|false"
+          Description="Let the LLM call tools: web search, news, Obsidian notes and memory. Needs a model with tool calling."
+          Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
 
   <!-- ── Web Search (optional) ── -->
   <Config Name="SearXNG URL" Target="SEARXNG_URL" Default=""
-          Description="Optional: URL of a SearXNG instance for live web search (weather, traffic, news). Leave blank to disable. Example: http://192.168.1.x:8887/search"
+          Description="Optional: URL of a SearXNG instance for live web search (weather, traffic, places) and the news fallback. Example: http://192.168.1.x:8887/search"
           Type="Variable" Display="always" Required="false" Mask="false"></Config>
 
   <!-- ── CORS ── -->
-  <Config Name="Allowed Origins" Target="ALLOWED_ORIGINS" Default="http://[IP]:5173"
-          Description="Comma-separated list of origins allowed to connect to the backend. Include your domain if accessing over the internet. Example: https://delamain.example.com,http://192.168.1.x:5173"
-          Type="Variable" Display="always" Required="true" Mask="false">http://[IP]:5173</Config>
+  <Config Name="Allowed Origins" Target="ALLOWED_ORIGINS" Default="http://[IP]:8888"
+          Description="Comma-separated list of origins allowed to connect to the backend. Include your domain if accessing over the internet. Example: https://delamain.example.com,http://192.168.1.x:8888"
+          Type="Variable" Display="always" Required="true" Mask="false">http://[IP]:8888</Config>
 
   <!-- ── GPU (NVIDIA) ── -->
   <Config Name="NVIDIA GPU (optional)" Target="NVIDIA_VISIBLE_DEVICES" Default=""

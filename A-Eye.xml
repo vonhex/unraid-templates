@@ -8,7 +8,7 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/vonhex/a-eye/issues</Support>
   <Project>https://github.com/vonhex/a-eye</Project>
-  <Overview>A-Eye is a self-hosted AI photo intelligence tool. This is a fork of the original A-Eye by SpaceinvaderOne (https://github.com/SpaceinvaderOne/a-eye), created to fix bugs present in the original. Uses a local Ollama vision model to understand, describe, tag, and rename your photos — no cloud required, everything runs on your own hardware. Supports automatic renaming, manual review mode, XMP sidecar writing (compatible with Immich, Lightroom, and digiKam), natural language photo search, quality detection for blurry or accidental shots, and a temporary workspace for processing photos from other devices. Works as a full photo renamer, a metadata enrichment tool, or a non-destructive read-only catalogue. Powered by Ollama for local AI inference.</Overview>
+  <Overview>A-Eye is a self-hosted AI photo intelligence tool. This is a fork of the original A-Eye by SpaceinvaderOne (https://github.com/SpaceinvaderOne/a-eye), created to fix bugs present in the original. Uses a local vision model (Ollama, or any OpenAI-compatible server such as Halogen, llama.cpp or vLLM) to understand, describe, tag, and rename your photos — no cloud required, everything runs on your own hardware. Supports automatic renaming, manual review mode, XMP sidecar writing (compatible with Immich, Lightroom, and digiKam), natural language photo search, quality detection for blurry or accidental shots, and a temporary workspace for processing photos from other devices. Works as a full photo renamer, a metadata enrichment tool, or a non-destructive read-only catalogue. This fork adds OpenAI-compatible servers with an option to turn off model thinking for much faster tagging, and the API endpoints the Eyeris photo manager uses to send untagged photos and videos for analysis.</Overview>
   <Category>AI: Productivity: MediaApp:Photos</Category>
   <WebUI>http://[IP]:[PORT:8000]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/A-Eye.xml</TemplateURL>
@@ -34,10 +34,22 @@
           Description="Persistent storage for the database, config, and thumbnail cache."
           Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/a-eye/</Config>
 
-  <!-- ── Ollama ── -->
+  <!-- ── AI server ── -->
   <Config Name="Ollama Host" Target="OLLAMA_HOST" Default="http://192.168.1.x:11434"
-          Description="URL of your running Ollama instance. Use your server's LAN IP — not localhost (that resolves inside the container)."
+          Description="URL of the AI server: Ollama (e.g. http://192.168.1.x:11434) or an OpenAI-compatible server (e.g. http://192.168.1.x:8731). Use the server's LAN IP — not localhost (that resolves inside the container)."
           Type="Variable" Display="always" Required="true" Mask="false">http://192.168.1.x:11434</Config>
+
+  <Config Name="AI API" Target="AI_API" Default="ollama|openai"
+          Description="API type of the server above: ollama (native Ollama API) or openai (any OpenAI-compatible server such as Halogen, llama.cpp or vLLM)."
+          Type="Variable" Display="always" Required="false" Mask="false">ollama</Config>
+
+  <Config Name="AI API Key" Target="AI_API_KEY" Default=""
+          Description="Bearer token for OpenAI-compatible servers that require one. Leave empty for Ollama and Halogen."
+          Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+
+  <Config Name="Disable Thinking" Target="AI_DISABLE_THINKING" Default="true|false"
+          Description="Ask reasoning models (Qwen, Halogen) to answer without a thinking phase: much faster tagging."
+          Type="Variable" Display="always" Required="false" Mask="false">true</Config>
 
   <!-- ── Permissions ── -->
   <Config Name="PUID" Target="PUID" Default="99"
