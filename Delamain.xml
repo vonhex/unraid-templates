@@ -8,7 +8,7 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/vonhex/delamain/issues</Support>
   <Project>https://github.com/vonhex/delamain</Project>
-  <Overview>Delamain is a self-hosted voice companion for the drive, modeled on Delamain from Cyberpunk 2077. Open it in any browser, including the one on your car's Android Auto display, press the mic and talk. It answers in a cloned Delamain voice (F5-TTS), searches the web through SearXNG, reads you spoken news bulletins, keeps notes, reminders and long-term memory in your Obsidian vault, and hands navigation to your phone's map app. A corrupted personality core with stutters and a glitched voice can be switched on in Settings. Works with any OpenAI-compatible LLM that supports tool calling (llama.cpp, vLLM, Halogen). F5-TTS model weights and a voice reference clip must be supplied by the user (see GitHub).</Overview>
+  <Overview>Delamain is a self-hosted voice companion for the drive, modeled on Delamain from Cyberpunk 2077. Open it in any browser, including the one on your car's Android Auto display, press the mic and talk. It answers in a cloned Delamain voice (F5-TTS) with a lip-synced face, and over 600 pre-recorded lines answer everyday messages instantly. Ten personality cores, from the original to the rogue cabs (Wellsprings, The Glen, Northside and more), each with its own temperament, face tint and voice. It searches the web through SearXNG, reads spoken news bulletins, gives weather and drive times, speaks reminders, keeps notes and long-term memory in your Obsidian vault, and hands navigation to your phone's map app. Works with any OpenAI-compatible LLM that supports tool calling (llama.cpp, vLLM, Halogen). Everything else is set up from the web UI: choose a password on first visit and connect your LLM under Settings, Integrations. The voice model and lip-synced clips download by themselves on the first start.</Overview>
   <Category>AI: Productivity: Tools:</Category>
   <WebUI>http://[IP]:[PORT:8888]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/Delamain.xml</TemplateURL>
@@ -18,7 +18,7 @@
   <CPUset/>
   <DonateText/>
   <DonateLink/>
-  <Requires>Requires an OpenAI-compatible LLM endpoint with tool calling. F5-TTS model weights must be downloaded separately (see GitHub README), and a 10-second voice reference clip placed in App Data as delamain_ref_10s.wav. After the first start, set a password from the container console: python auth.py set-password YOURPASSWORD. A GPU is recommended for real-time TTS; CPU-only works but is slower on uncached phrases.</Requires>
+  <Requires>An OpenAI-compatible LLM endpoint with tool calling, reachable from the container. Nothing else to supply: on the first start the container downloads the F5-TTS voice model (about 1.3 GB) and the lip-synced clips (about 240 MB) into App Data, then records its fixed lines in the background. Open the Web UI, choose a password, and set the LLM under Settings, Integrations (or fill in the variables below). A GPU is recommended for real-time speech; CPU works but is slower on replies that are not pre-recorded.</Requires>
 
   <!-- ── Ports ── -->
   <Config Name="Backend API Port" Target="8888" Default="8888" Mode="tcp"
@@ -27,21 +27,21 @@
 
   <!-- ── Volumes ── -->
   <Config Name="App Data" Target="/app/data" Default="/mnt/user/appdata/delamain/"
-          Description="Persistent storage for the SQLite database and voice clips. Place your 10-second voice reference clip here as delamain_ref_10s.wav."
+          Description="Database, settings saved from the web UI, recorded audio and the lip-synced clips (downloaded on first start). To clone another voice, put a 10-second WAV here and set DELAMAIN_REF_AUDIO to /app/data/its-name.wav."
           Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/delamain/</Config>
 
   <Config Name="F5-TTS Model Weights" Target="/app/checkpoints" Default="/mnt/user/appdata/delamain/checkpoints/"
-          Description="Path to F5-TTS model weights directory. Must contain F5TTS_Base/model_1200000.pt and F5TTS_Base/vocab.txt. Download with: huggingface-cli download SWivid/F5-TTS F5TTS_Base/model_1200000.pt F5TTS_Base/vocab.txt --local-dir /path/to/checkpoints"
+          Description="F5-TTS model weights. Downloaded here automatically on the first start (about 1.3 GB)."
           Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/delamain/checkpoints/</Config>
 
   <Config Name="Obsidian Vault (optional)" Target="/vault" Default=""
-          Description="Optional: your Obsidian vault. Delamain keeps notes, reminders and long-term memory under Delamain/ in it. Leave blank to keep them inside the container."
+          Description="Optional: your Obsidian vault. Delamain keeps notes and long-term memory under Delamain/ in it. In Settings, Integrations, the vault folder is /vault."
           Type="Path" Display="always" Required="false" Mode="rw" Mask="false"></Config>
 
   <!-- ── LLM ── -->
-  <Config Name="LLM URL" Target="LLM_URL" Default="http://192.168.1.x:8080/v1/chat/completions"
-          Description="Chat completions URL of your OpenAI-compatible LLM server (llama.cpp, vLLM, Halogen). Use the server's LAN IP — not localhost (that resolves inside the container)."
-          Type="Variable" Display="always" Required="true" Mask="false">http://192.168.1.x:8080/v1/chat/completions</Config>
+  <Config Name="LLM URL" Target="LLM_URL" Default=""
+          Description="Chat completions URL of your OpenAI-compatible LLM server (llama.cpp, vLLM, Halogen), e.g. http://192.168.1.x:8080/v1/chat/completions. Use the server's LAN IP, not localhost (that resolves inside the container). Can also be set in the web UI under Settings, Integrations."
+          Type="Variable" Display="always" Required="false" Mask="false"></Config>
 
   <Config Name="LLM Model" Target="LLM_MODEL" Default=""
           Description="Model id your LLM server serves (listed at its /v1/models). llama.cpp ignores it."
@@ -52,7 +52,7 @@
           Type="Variable" Display="always" Required="false" Mask="false"></Config>
 
   <Config Name="Tools" Target="TOOLS_ENABLED" Default="true|false"
-          Description="Let the LLM call tools: web search, news, Obsidian notes and memory. Needs a model with tool calling."
+          Description="Let the LLM call tools: web search, news, weather, drive times, Obsidian notes and memory. Needs a model with tool calling."
           Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
 
   <!-- ── Web Search (optional) ── -->
@@ -60,13 +60,18 @@
           Description="Optional: URL of a SearXNG instance for live web search (weather, traffic, places) and the news fallback. Example: http://192.168.1.x:8887/search"
           Type="Variable" Display="always" Required="false" Mask="false"></Config>
 
+  <!-- ── Clips and voice (advanced) ── -->
+  <Config Name="Lip-sync clips URL" Target="DELAMAIN_CLIPS_URL" Default="https://github.com/vonhex/delamain/releases/download/line-clips/delamain-line-clips.zip"
+          Description="Where the lip-synced clips are downloaded from on first start (and refreshed when the release changes). Empty to skip the download."
+          Type="Variable" Display="advanced" Required="false" Mask="false">https://github.com/vonhex/delamain/releases/download/line-clips/delamain-line-clips.zip</Config>
+
   <!-- ── CORS ── -->
   <Config Name="Allowed Origins" Target="ALLOWED_ORIGINS" Default="http://[IP]:8888"
-          Description="Comma-separated list of origins allowed to connect to the backend. Include your domain if accessing over the internet. Example: https://delamain.example.com,http://192.168.1.x:8888"
-          Type="Variable" Display="always" Required="true" Mask="false">http://[IP]:8888</Config>
+          Description="Only needed when another site calls this API (cross-origin). Opening the Web UI directly, on the LAN or through a reverse proxy or tunnel, works without it. Comma-separated, e.g. https://delamain.example.com"
+          Type="Variable" Display="advanced" Required="false" Mask="false">http://[IP]:8888</Config>
 
   <!-- ── GPU (NVIDIA) ── -->
   <Config Name="NVIDIA GPU (optional)" Target="NVIDIA_VISIBLE_DEVICES" Default=""
-          Description="Set to 'all' to enable NVIDIA GPU passthrough for F5-TTS acceleration. Requires Nvidia-Driver plugin installed in Unraid. Leave blank for CPU-only."
+          Description="Set to 'all' to use an NVIDIA GPU for the voice. Requires the Nvidia-Driver plugin, and --runtime=nvidia in Extra Parameters (Advanced View). Leave blank for CPU only."
           Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
 </Container>
