@@ -8,7 +8,7 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/vonhex/delamain/issues</Support>
   <Project>https://github.com/vonhex/delamain</Project>
-  <Overview>Delamain is a self-hosted voice companion for the drive, modeled on Delamain from Cyberpunk 2077. Open it in any browser, including the one on your car's Android Auto display, press the mic and talk. It answers in a cloned Delamain voice (F5-TTS) with a lip-synced face, and over 600 pre-recorded lines answer everyday messages instantly. Ten personality cores, from the original to the rogue cabs (Wellsprings, The Glen, Northside and more), each with its own temperament, face tint and voice. It searches the web through SearXNG, reads spoken news bulletins, gives weather and drive times, speaks reminders, keeps notes and long-term memory in your Obsidian vault, and hands navigation to your phone's map app. Works with any OpenAI-compatible LLM that supports tool calling (llama.cpp, vLLM, Halogen). Everything else is set up from the web UI: choose a password on first visit and connect your LLM under Settings, Integrations. The voice model and lip-synced clips download by themselves on the first start.</Overview>
+  <Overview>Delamain is a self-hosted voice companion for the drive, modeled on Delamain from Cyberpunk 2077. Open it in any browser, including the one on your car's Android Auto display, press the mic and talk. It answers in a cloned Delamain voice (F5-TTS) with a lip-synced face, and over 600 pre-recorded lines answer everyday messages instantly. Ten personality cores, from the original to the rogue cabs (Wellsprings, The Glen, Northside and more), each with its own temperament, face tint and voice. It searches the web through SearXNG, reads spoken news bulletins, gives weather and drive times, speaks reminders, keeps notes and long-term memory in your Obsidian vault, and hands navigation to your phone's map app. Works with any OpenAI-compatible LLM that supports tool calling (Ollama, LM Studio, llama.cpp, vLLM). Everything else is set up from the web UI: choose a password on first visit and connect your LLM under Settings, Integrations. The voice model and lip-synced clips download by themselves on the first start.</Overview>
   <Category>AI: Productivity: Tools:</Category>
   <WebUI>http://[IP]:[PORT:8888]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/Delamain.xml</TemplateURL>
@@ -40,7 +40,7 @@
 
   <!-- ── LLM ── -->
   <Config Name="LLM URL" Target="LLM_URL" Default=""
-          Description="Chat completions URL of your OpenAI-compatible LLM server (llama.cpp, vLLM, Halogen), e.g. http://192.168.1.x:8080/v1/chat/completions. Use the server's LAN IP, not localhost (that resolves inside the container). Can also be set in the web UI under Settings, Integrations."
+          Description="Chat completions URL of your OpenAI-compatible LLM server (Ollama, LM Studio, llama.cpp, vLLM), e.g. http://192.168.1.x:8080/v1/chat/completions. Use the server's LAN IP, not localhost (that resolves inside the container). Can also be set in the web UI under Settings, Integrations."
           Type="Variable" Display="always" Required="false" Mask="false"></Config>
 
   <Config Name="LLM Model" Target="LLM_MODEL" Default=""
@@ -48,7 +48,7 @@
           Type="Variable" Display="always" Required="false" Mask="false"></Config>
 
   <Config Name="LLM Reasoning Effort" Target="LLM_REASONING_EFFORT" Default=""
-          Description="For reasoning models (Qwen, Halogen): set to none to turn thinking off so replies come quickly. Leave blank for other models."
+          Description="For reasoning models (Qwen 3, DeepSeek R1): set to none to turn thinking off so replies come quickly. Leave blank for other models."
           Type="Variable" Display="always" Required="false" Mask="false"></Config>
 
   <Config Name="Tools" Target="TOOLS_ENABLED" Default="true|false"
