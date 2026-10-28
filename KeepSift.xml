@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>KeepSift</Name>
+  <Repository>ghcr.io/vonhex/keepsift:latest</Repository>
+  <Registry>https://github.com/vonhex/keepsift/pkgs/container/keepsift</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/vonhex/keepsift/issues</Support>
+  <Project>https://github.com/vonhex/keepsift</Project>
+  <Overview>KeepSift cleans out a huge Gmail inbox with your own local AI, without losing the emails that matter. It scans Gmail's Promotions, Social, Updates and Forums tabs, groups years of mail by sender, and removes the senders you pick, either by labelling them "To Delete" for review or by moving them to Gmail Trash (recoverable for 30 days). Every email first passes a rule-based safety net that keeps product and license keys, activation, verification and sign-in links, codes, gift cards, receipts, attachments and starred mail, and learns each sender's repeated footer so boilerplate doesn't block cleanup. An optional model double-check catches what rules can't. It can also sort new mail, flag phishing and write reply drafts for you to review. Works with any OpenAI-compatible model server (llama.cpp, LM Studio, Ollama, vLLM); your email is never sent to a cloud AI. The full app opens in your browser. Free for non-commercial use (PolyForm Noncommercial 1.0.0). Provided as is, with no warranty and no liability for deleted email: start with the "To Delete" label and Preview, and keep a backup.</Overview>
+  <Category>AI: Productivity: Tools:</Category>
+  <WebUI>http://[IP]:[PORT:5800]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/vonhex/unraid-templates/main/KeepSift.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/vonhex/keepsift/main/assets/icon-256.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>An OpenAI-compatible model server reachable from the container, such as llama.cpp, LM Studio, Ollama or vLLM, with a 14B+ instruction-tuned model recommended (7B minimum). Inside the container "localhost" is the container itself, so set Model Server URL to your server's LAN address, e.g. http://192.168.1.20:8080/v1. A Gmail app password (Google account, Security, App passwords; needs 2-Step Verification) and IMAP turned on in Gmail settings. Open the Web UI and the setup wizard walks you through Gmail, the model and your name. The app password is stored in App Data, so if anyone else can reach this port, turn on Web Login below.</Requires>
+
+  <!-- ── Ports ── -->
+  <Config Name="Web UI Port" Target="5800" Default="5880" Mode="tcp"
+          Description="Port for KeepSift in your browser."
+          Type="Port" Display="always" Required="true" Mask="false">5880</Config>
+
+  <Config Name="VNC Port" Target="5900" Default="" Mode="tcp"
+          Description="Optional: direct VNC access with a VNC client. Leave empty to not expose it."
+          Type="Port" Display="advanced" Required="false" Mask="false"></Config>
+
+  <!-- ── Data ── -->
+  <Config Name="App Data" Target="/config" Default="/mnt/user/appdata/keepsift/"
+          Description="Settings, Gmail login (.env), history database and logs."
+          Type="Path" Display="always" Required="true" Mode="rw" Mask="false">/mnt/user/appdata/keepsift/</Config>
+
+  <!-- ── Model ── -->
+  <Config Name="Model Server URL" Target="KEEPSIFT_MODEL_URL" Default=""
+          Description="Your OpenAI-compatible server, ending in /v1, e.g. http://192.168.1.20:8080/v1 (llama.cpp), :1234/v1 (LM Studio), :11434/v1 (Ollama). Pre-fills the setup wizard on first start; change it later under Settings, Model."
+          Type="Variable" Display="always" Required="false" Mask="false"></Config>
+
+  <!-- ── Web login ── -->
+  <Config Name="Web Login" Target="WEB_AUTHENTICATION" Default="0"
+          Description="Set to 1 to require a username and password for the Web UI. Recommended if anyone else can reach this port, since the Gmail app password is stored inside."
+          Type="Variable" Display="always" Required="false" Mask="false">0</Config>
+
+  <Config Name="Web Login Username" Target="WEB_AUTHENTICATION_USERNAME" Default=""
+          Description="Username for Web Login."
+          Type="Variable" Display="always" Required="false" Mask="false"></Config>
+
+  <Config Name="Web Login Password" Target="WEB_AUTHENTICATION_PASSWORD" Default=""
+          Description="Password for Web Login."
+          Type="Variable" Display="always" Required="false" Mask="true"></Config>
+
+  <Config Name="Allow Web Login over http" Target="WEB_AUTHENTICATION_ALLOW_INSECURE" Default="1"
+          Description="Web Login normally requires https (Secure Connection). 1 allows it over plain http on your LAN; set to 0 and Secure Connection to 1 for https."
+          Type="Variable" Display="advanced" Required="false" Mask="false">1</Config>
+
+  <Config Name="Secure Connection" Target="SECURE_CONNECTION" Default="0"
+          Description="Set to 1 to serve the Web UI over https with a self-signed certificate."
+          Type="Variable" Display="advanced" Required="false" Mask="false">0</Config>
+
+  <!-- ── Display ── -->
+  <Config Name="Display Width" Target="DISPLAY_WIDTH" Default="1280"
+          Description="Width of the app's screen in pixels."
+          Type="Variable" Display="advanced" Required="false" Mask="false">1280</Config>
+
+  <Config Name="Display Height" Target="DISPLAY_HEIGHT" Default="860"
+          Description="Height of the app's screen in pixels."
+          Type="Variable" Display="advanced" Required="false" Mask="false">860</Config>
+
+  <Config Name="Dark Web UI" Target="DARK_MODE" Default="0"
+          Description="Set to 1 for a dark frame around the app. KeepSift's own light/dark switch is in its header."
+          Type="Variable" Display="advanced" Required="false" Mask="false">0</Config>
+
+  <!-- ── Permissions ── -->
+  <Config Name="User ID" Target="USER_ID" Default="99"
+          Description="User the app runs as (99 = nobody on Unraid)."
+          Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+
+  <Config Name="Group ID" Target="GROUP_ID" Default="100"
+          Description="Group the app runs as (100 = users on Unraid)."
+          Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
+
+  <Config Name="Umask" Target="UMASK" Default="0002"
+          Description="Permission mask for files KeepSift creates in App Data."
+          Type="Variable" Display="advanced" Required="false" Mask="false">0002</Config>
+
+</Container>
